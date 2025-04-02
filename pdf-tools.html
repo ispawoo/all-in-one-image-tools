@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Tools | ToolifyPro</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/pdf.min.js"></script>
+</head>
+<body>
+    <!-- Header (Same as index.html) -->
+    <header>...</header>
+
+    <main class="container">
+        <h1>PDF Tools</h1>
+        
+        <!-- PDF Compressor -->
+        <section id="pdf-compressor" class="tool-section">
+            <h2><i class="fas fa-file-pdf"></i> PDF Compressor</h2>
+            <div class="upload-area" id="pdf-compress-upload">
+                <input type="file" id="pdf-compress-input" accept=".pdf">
+                <p>Drop PDF here or <span>click to browse</span></p>
+                <div class="quality-control">
+                    <label>Compression Level:</label>
+                    <input type="range" id="pdf-quality" min="1" max="100" value="75">
+                    <span id="pdf-quality-value">75%</span>
+                </div>
+                <button id="compress-pdf-btn" class="btn">Compress PDF</button>
+            </div>
+            <div id="pdf-compress-result" class="result-area hidden">
+                <a id="download-pdf" class="btn">Download Compressed PDF</a>
+                <div class="file-info">
+                    <p>Original: <span id="original-size">-</span></p>
+                    <p>Compressed: <span id="compressed-size">-</span> (<span id="reduction-percent">0%</span> smaller)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PDF to JPG -->
+        <section id="pdf-to-jpg" class="tool-section">
+            <h2><i class="fas fa-image"></i> PDF to JPG Converter</h2>
+            <div class="upload-area" id="pdf-to-jpg-upload">
+                <input type="file" id="pdf-to-jpg-input" accept=".pdf">
+                <p>Drop PDF here to extract images</p>
+                <button id="convert-pdf-btn" class="btn">Extract Images</button>
+            </div>
+            <div id="pdf-to-jpg-result" class="result-area hidden">
+                <div id="extracted-images" class="image-grid"></div>
+                <button id="download-all-jpg" class="btn hidden">Download All as ZIP</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Same as index.html) -->
+    <footer>...</footer>
+
+    <script src="../assets/js/docs.js"></script>
+</body>
+</html>
