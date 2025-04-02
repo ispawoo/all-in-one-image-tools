@@ -1,0 +1,135 @@
+ PDF Compression
+document.getElementById('pdf-compress-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file.type !== applicationpdf) {
+        alert(Please upload a PDF file);
+        return;
+    }
+     Show file info
+    document.getElementById('original-size').textContent = formatFileSize(file.size);
+});
+
+document.getElementById('compress-pdf-btn').addEventListener('click', function() {
+    const file = document.getElementById('pdf-compress-input').files[0];
+    if (!file) {
+        alert(Please select a PDF first);
+        return;
+    }
+
+    const quality = document.getElementById('pdf-quality').value  100;
+    compressPDF(file, quality);
+});
+
+function compressPDF(file, quality) {
+     Using pdf-lib for compression
+    const reader = new FileReader();
+    reader.onload = async function() {
+        const pdfBytes = new Uint8Array(reader.result);
+        const { PDFDocument } = PDFLib;
+        
+        try {
+            const pdfDoc = await PDFDocument.load(pdfBytes);
+            const compressedBytes = await pdfDoc.save({
+                useObjectStreams true,
+                 Adjust compression based on quality slider
+                ...(quality  0.5  { 
+                    useCompression true,
+                    flattenAnnotations true 
+                }  {})
+            });
+            
+            const compressedSize = compressedBytes.byteLength;
+            const reduction = Math.round((1 - compressedSizefile.size)  100);
+            
+             Show results
+            document.getElementById('compressed-size').textContent = formatFileSize(compressedSize);
+            document.getElementById('reduction-percent').textContent = reduction;
+            document.getElementById('pdf-compress-result').classList.remove('hidden');
+            
+             Set up download
+            document.getElementById('download-pdf').onclick = function() {
+                const blob = new Blob([compressedBytes], {type 'applicationpdf'});
+                saveAs(blob, `compressed_${file.name}`);
+            };
+        } catch (error) {
+            alert(Error compressing PDF  + error.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+ PDF to JPG Conversion
+document.getElementById('convert-pdf-btn').addEventListener('click', function() {
+    const file = document.getElementById('pdf-to-jpg-input').files[0];
+    if (!file) {
+        alert(Please select a PDF first);
+        return;
+    }
+    extractImagesFromPDF(file);
+});
+
+async function extractImagesFromPDF(file) {
+    const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
+    const pdf = await loadingTask.promise;
+    const imageContainer = document.getElementById('extracted-images');
+    imageContainer.innerHTML = ;
+    let imageCount = 0;
+
+    for (let i = 1; i = pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const ops = await page.getOperatorList();
+        
+        ops.fnArray.forEach(async (fn, index) = {
+            if (fn === pdfjsLib.OPS.paintImageXObject) {
+                const imageId = ops.argsArray[index][0];
+                const image = await page.objs.get(imageId);
+                const img = document.createElement('img');
+                img.src = image.src;
+                imageContainer.appendChild(img);
+                imageCount++;
+            }
+        });
+    }
+
+    if (imageCount  0) {
+        document.getElementById('pdf-to-jpg-result').classList.remove('hidden');
+        if (imageCount  1) {
+            document.getElementById('download-all-jpg').classList.remove('hidden');
+             Implement ZIP download using JSZip
+        }
+    } else {
+        alert(No images found in this PDF);
+    }
+}
+
+ Word to PDF Conversion
+document.getElementById('convert-word-btn').addEventListener('click', function() {
+    const file = document.getElementById('word-input').files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function() {
+        mammoth.extractRawText({arrayBuffer reader.result})
+            .then(function(result) {
+                 Convert to PDF using jsPDF
+                const doc = new jsPDF();
+                doc.text(result.value, 10, 10);
+                const pdfOutput = doc.output('blob');
+                
+                document.getElementById('word-result').classList.remove('hidden');
+                document.getElementById('download-pdf').onclick = function() {
+                    saveAs(pdfOutput, file.name.replace(.[^.]+$, ) + .pdf);
+                };
+            });
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+ Helper function
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes)  Math.log(k));
+    return parseFloat((bytes  Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
